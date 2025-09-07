@@ -28,7 +28,7 @@ class SettingsPopup {
   async loadApiKey() {
     try {
       const response = await chrome.runtime.sendMessage({ action: 'getApiKey' });
-      if (response.apiKey) {
+      if (response && response.apiKey) {
         this.apiKeyInput.value = response.apiKey;
       }
     } catch (error) {
@@ -60,15 +60,21 @@ class SettingsPopup {
         apiKey: apiKey
       });
 
+      // Check if response exists and has expected structure
+      if (!response) {
+        this.showStatus('Failed to save API key: No response from background script', 'error');
+        return;
+      }
+
       if (response.success) {
         this.showStatus('API key saved successfully!', 'success');
         setTimeout(() => window.close(), 1500);
       } else {
-        this.showStatus('Failed to save API key: ' + response.error, 'error');
+        this.showStatus('Failed to save API key: ' + (response.error || 'Unknown error'), 'error');
       }
     } catch (error) {
       console.error('Error saving API key:', error);
-      this.showStatus('Failed to save API key', 'error');
+      this.showStatus('Failed to save API key: ' + error.message, 'error');
     } finally {
       this.setLoading(false);
     }

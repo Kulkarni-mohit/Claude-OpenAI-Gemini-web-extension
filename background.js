@@ -38,20 +38,23 @@ class BackgroundService {
     }
   }
 
-  async handleMessage(message, sender, sendResponse) {
+  handleMessage(message, sender, sendResponse) {
     switch (message.action) {
       case 'getExplanation':
         this.getExplanation(message.text, sender.tab.id);
-        break;
+        return false; // No response needed for this action
       case 'saveApiKey':
-        const result = await this.saveApiKey(message.apiKey);
-        sendResponse(result);
-        break;
+        this.saveApiKey(message.apiKey).then(result => {
+          sendResponse(result);
+        }).catch(error => {
+          sendResponse({ success: false, error: error.message });
+        });
+        return true; // Keep message channel open for async response
       case 'getApiKey':
         sendResponse({ apiKey: this.apiKey });
-        break;
+        return false; // Synchronous response
     }
-    return true; // Keep message channel open for async response
+    return false;
   }
 
   async getExplanation(selectedText, tabId) {

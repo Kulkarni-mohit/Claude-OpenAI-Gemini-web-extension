@@ -9,11 +9,34 @@ class AIChatHelper {
     this.currentPopupId = null;
     this.isProcessing = false;
     this.lastSelection = '';
+    this.extensionId = chrome.runtime.id; // Store extension ID for validation
 
     this.init();
   }
 
+  // Method to check if extension context is still valid
+  isExtensionValid() {
+    try {
+      return chrome.runtime && chrome.runtime.id && chrome.runtime.id === this.extensionId;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  // Method to show context invalidation message
+  showContextInvalidatedMessage() {
+    if (this.currentPopupId && this.popupManager) {
+      this.updatePopupContent('❌ Extension was reloaded. Please refresh the page to continue.', 'error');
+    }
+  }
+
   init() {
+    // Check if extension context is valid
+    if (!this.isExtensionValid()) {
+      console.error('AI Chat Helper: Extension context invalid, cannot initialize');
+      return;
+    }
+
     // Initialize popup manager
     this.popupManager = new SelectionPopupManager();
 
@@ -22,8 +45,12 @@ class AIChatHelper {
     document.addEventListener('keyup', this.handleKeyUp.bind(this));
     document.addEventListener('selectionchange', this.handleSelectionChange.bind(this));
 
-    // Listen for messages from background script
-    chrome.runtime.onMessage.addListener(this.handleMessage.bind(this));
+    // Listen for messages from background script with error handling
+    try {
+      chrome.runtime.onMessage.addListener(this.handleMessage.bind(this));
+    } catch (error) {
+      console.error('AI Chat Helper: Error setting up message listener:', error);
+    }
 
     console.log('AI Chat Helper: Content script loaded successfully');
 
@@ -100,6 +127,12 @@ class AIChatHelper {
       return;
     }
 
+    // Check if extension context is still valid
+    if (!this.isExtensionValid()) {
+      console.error('AI Chat Helper: Extension context invalidated, cannot show popup');
+      return;
+    }
+
     try {
       // Get popup position using the popup manager's positioning logic
       const position = this.popupManager.getPopupPosition(event, null);
@@ -124,6 +157,10 @@ class AIChatHelper {
       this.requestExplanation(selectedText);
     } catch (error) {
       console.error('AI Chat Helper: Error creating popup:', error);
+      // Try to show error in popup if possible
+      if (this.currentPopupId && this.popupManager) {
+        this.updatePopupContent('❌ Error: ' + error.message, 'error');
+      }
     }
   }
 
@@ -135,12 +172,33 @@ class AIChatHelper {
   }
 
   requestExplanation(text) {
-    // Send message to background script to get explanation
-    if (chrome.runtime && chrome.runtime.sendMessage) {
+    // Check if extension context is valid
+    if (!this.isExtensionValid()) {
+      console.error('AI Chat Helper: Extension context invalidated');
+      this.showContextInvalidatedMessage();
+      return;
+    }
+
+    try {
+      // Send message to background script to get explanation
       chrome.runtime.sendMessage({
         action: 'getExplanation',
         text: text
+      }).catch(error => {
+        console.error('AI Chat Helper: Error sending message:', error);
+        if (error.message && error.message.includes('Extension context invalidated')) {
+          this.showContextInvalidatedMessage();
+        } else {
+          this.updatePopupContent('❌ Failed to connect to extension background.', 'error');
+        }
       });
+    } catch (error) {
+      console.error('AI Chat Helper: Error in requestExplanation:', error);
+      if (error.message && error.message.includes('Extension context invalidated')) {
+        this.showContextInvalidatedMessage();
+      } else {
+        this.updatePopupContent('❌ Extension connection error. Please refresh the page.', 'error');
+      }
     }
   }
 
@@ -151,20 +209,36 @@ class AIChatHelper {
   }
 
   handleMessage(message, sender, sendResponse) {
-    switch (message.action) {
-      case 'explanationResponse':
-        if (this.currentPopupId) {
-          if (message.success) {
-            this.updatePopupContent(message.explanation, 'explanation');
-          } else {
-            this.updatePopupContent('❌ ' + message.error, 'error');
+    try {
+      // Validate message structure
+      if (!message || !message.action) {
+        console.warn('AI Chat Helper: Invalid message received:', message);
+        return;
+      }
+
+      switch (message.action) {
+        case 'explanationResponse':
+          if (this.currentPopupId) {
+            if (message.success && message.explanation) {
+              this.updatePopupContent(message.explanation, 'explanation');
+            } else {
+              const errorMsg = message.error || 'Unknown error occurred';
+              this.updatePopupContent('❌ ' + errorMsg, 'error');
+            }
           }
-        }
-        break;
-      case 'hidePopup':
-        this.closeCurrentPopup();
-        this.lastSelection = '';
-        break;
+          break;
+        case 'hidePopup':
+          this.closeCurrentPopup();
+          this.lastSelection = '';
+          break;
+        default:
+          console.log('AI Chat Helper: Unknown message action:', message.action);
+      }
+    } catch (error) {
+      console.error('AI Chat Helper: Error handling message:', error);
+      if (this.currentPopupId) {
+        this.updatePopupContent('❌ Error processing response', 'error');
+      }
     }
   }
 }
