@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Chat Helper Settings</title>
+  <style>
+    body {
+      width: 350px;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      background: #f8f9fa;
+    }
+
+    .container {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 18px;
+      color: #1a1a1a;
+    }
+
+    .header p {
+      margin: 5px 0 0 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .form-group input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e1e5e9;
+      border-radius: 8px;
+      font-size: 14px;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input[type="password"]:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-primary {
+      background: #007bff;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #0056b3;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+      margin-top: 10px;
+    }
+
+    .btn-secondary:hover {
+      background: #545b62;
+    }
+
+    .status {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .help-text {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+      line-height: 1.4;
+    }
+
+    .help-text a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    .help-text a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🤖 AI Chat Helper</h1>
+      <p>Get instant term explanations</p>
+    </div>
+
+    <form id="settings-form">
+      <div class="form-group">
+        <label for="api-key">Gemini API Key</label>
+        <input type="password" id="api-key" placeholder="Enter your Gemini API key">
+        <div class="help-text">
+          Get your API key from <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" id="save-btn">Save API Key</button>
+      <button type="button" class="btn btn-secondary" id="test-btn">Test Connection</button>
+    </form>
+
+    <div id="status" class="status" style="display: none;"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
+

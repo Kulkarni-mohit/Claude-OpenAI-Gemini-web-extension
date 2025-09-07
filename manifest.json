@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "AI Chat Helper",
+  "version": "1.0.2",
+  "description": "Get instant term explanations via text selection popups on AI chat platforms",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://chat.openai.com/*",
+    "https://chatgpt.com/*",
+    "https://*.googleapis.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chat.openai.com/*",
+        "https://chatgpt.com/*",
+        "https://*.openai.com/*",
+        "https://*.chatgpt.com/*"
+      ],
+      "js": ["selection-popup.js", "content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "AI Chat Helper Settings"
+  }
+}
