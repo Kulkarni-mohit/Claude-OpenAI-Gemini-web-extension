@@ -2,6 +2,9 @@
 
 A Chrome extension that provides instant term explanations via text selection popups on AI chat platforms (ChatGPT, Claude, etc.) without disrupting the main conversation flow.
 
+Currently Supports ChatGPT. 
+Claude, Gemini and Deepseek will be integrated soon!!
+
 ## ✨ Features
 
 - **Instant Explanations**: Select any text on ChatGPT to get instant explanations
