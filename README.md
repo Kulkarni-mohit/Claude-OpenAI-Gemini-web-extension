@@ -69,32 +69,7 @@ cd ai-chat-helper-extension
 └── README.md             # This file
 ```
 
-### API Integration
-- Uses Google's Gemini AI API
-- Implements proper error handling and rate limiting
-- Secure API key storage using Chrome's sync storage
 
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Popup not showing:**
-- Make sure you're on chat.openai.com or chatgpt.com
-- Check that your API key is configured correctly
-- Try refreshing the page
-
-**API errors:**
-- Verify your Gemini API key is valid
-- Check your internet connection
-- Ensure you haven't exceeded API rate limits
-
-**Extension not working:**
-- Reload the extension in `chrome://extensions/`
-- Check browser console for error messages
-- Try restarting Chrome
-
-### Debug Mode
-Open Chrome DevTools (F12) and check the Console tab for extension logs prefixed with "AI Chat Helper:".
 
 ## 📋 Requirements
 
